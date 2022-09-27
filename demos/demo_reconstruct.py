@@ -16,7 +16,7 @@
 import os, sys
 import cv2
 import numpy as np
-from time import time
+import time
 from scipy.io import savemat
 import argparse
 from tqdm import tqdm
@@ -45,7 +45,9 @@ def main(args):
     deca_cfg.model.extract_tex = args.extractTex
     deca = DECA(config = deca_cfg, device=device)
     # for i in range(len(testdata)):
+    print("Starting Inference")
     for i in tqdm(range(len(testdata))):
+        start = time.time()
         name = testdata[i]['imagename']
         images = testdata[i]['image'].to(device)[None,...]
         with torch.no_grad():
@@ -58,6 +60,8 @@ def main(args):
                 _, orig_visdict = deca.decode(codedict, render_orig=True, original_image=original_image, tform=tform)    
                 orig_visdict['inputs'] = original_image            
 
+        end = time.time()
+        print("Time Taken for Sample is: ", end - start)
         if args.saveDepth or args.saveKpt or args.saveObj or args.saveMat or args.saveImages:
             os.makedirs(os.path.join(savefolder, name), exist_ok=True)
         # -- save results
